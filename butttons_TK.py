@@ -42,11 +42,19 @@ class App():
         self.is_new_calculation = True  #Basically keeps track of whether equals has been pressed
 
         self.display_variable = StringVar()
-        self.display = Entry(master, textvariable=self.display_variable, width=19) #width is number of characters
-        self.display.config(font=('times', 29), justify=RIGHT, borderwidth=5, relief=FLAT)
-        self.display.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
-        self.display.grid_propagate(False)
-        self.set_display_text("0")
+        self.total_display = Entry(master, textvariable=self.display_variable, width=19) #width is number of characters
+        self.total_display.config(font=('times', 29), justify=RIGHT, borderwidth=5, relief=FLAT)
+        self.total_display.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
+        self.total_display.grid_propagate(False)
+        self.display_variable.set("0")
+
+        # self.calculation_variable = StringVar()
+        # self.total_calcuation_display = Entry(master, textvariable=self.calculation_variable, width=19) #width is number of characters
+        # self.total_calcuation_display.config(font=('times', 29), justify=RIGHT, borderwidth=5, relief=FLAT)
+        # self.total_calcuation_display.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
+        # self.total_calcuation_display.grid_propagate(False)
+        # self.display_variable.set("0")
+
 
         #############
         #Key Bindings
@@ -166,14 +174,14 @@ class App():
         equals_button.grid(row=4, column=3, rowspan=2, pady=2)
 
 
-    #This can probably be removed
-    def set_display_text(self, display_value):
+    # #This can probably be removed
+    # def set_display_text(self, display_value):
 
-        display_width = 16
-        # white_space = display_width - len(display_value)
-        # return_value = '*' * white_space + display_value
+    #     display_width = 16
+    #     # white_space = display_width - len(display_value)
+    #     # return_value = '*' * white_space + display_value
 
-        self.display_variable.set(display_value)
+    #     self.display_variable.set(display_value)
 
 
     def clear_command(self):
@@ -196,7 +204,7 @@ class App():
         else:
             self.set_null()
 
-        self.set_display_text(self.next_input)
+        self.display_variable.set(self.next_input)
 
 
     def calculate_total(self):
@@ -249,7 +257,7 @@ class App():
         else:
             self.next_input = input_value
 
-        self.set_display_text(self.next_input)
+        self.display_variable.set(self.next_input)
 
 
     def add_decimal(self):
@@ -259,7 +267,7 @@ class App():
         if '.' not in self.next_input:
             self.next_input += '.'
 
-        self.set_display_text(self.next_input)
+        self.display_variable.set(self.next_input)
 
 
     def display_output(self):
@@ -272,10 +280,10 @@ class App():
             if total_string.endswith(".0"):
                 total_string = total_string[:-2]
 
-            self.set_display_text(total_string)
+            self.display_variable.set(total_string)
         except ZeroDivisionError:
             self.clear_command()
-            self.set_display_text("Zero division error")
+            self.display_variable.set("Zero division error")
 
 
 
