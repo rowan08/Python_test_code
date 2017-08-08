@@ -26,20 +26,20 @@ class Calculator(object):
     #Called when next_input needs to be set to zero
     def set_null(self):
         self.next_input = "0"
-        
+
     def delete_value(self):
-        
+
         if len(self.next_input) > 1:
             self.next_input = self.next_input[:-1]
         else:
             self.set_null()
-        
+
         self.set_display_text(self.next_input)
 
     def calculate_total(self):
-        
+
         input_float = float(self.next_input)
-                
+
         if self.operator_value == None:
             self.total = input_float
 
@@ -48,10 +48,10 @@ class Calculator(object):
 
         elif self.operator_value == '-':
             self.total -= input_float
-        
+
         elif self.operator_value == '*':
             self.total *= input_float
-        
+
         elif self.operator_value == '/':
             self.total /= input_float
 
@@ -89,7 +89,7 @@ class Calculator(object):
 my_calc = Calculator()
 
 while True:
-    
+
     my_var = input("Enter var: ")
     if my_var == "q":
         break
