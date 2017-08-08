@@ -1,4 +1,7 @@
 import sys
+from Calculation_variable import Calculation_variable
+
+#Check Python version and import appropriate tkinter module
 if sys.version_info.major == 3:
     from tkinter import *
 else:
@@ -25,15 +28,30 @@ class Wide_button(Button):
 
         self.config(height=5, width=26)
 
+def is_integer_value(string_value):
+    """
+    This will assume a value is a float only if its value after the decimal place
+    is above 0. Also assumes only the float, self.total, will ever get passed to it
+    """
+    temp_index = string_value.index('.')
+    temp_value = string_value[temp_index+1:]
+
+    return int(temp_value) == 0
+
+
 # from inspect import getsource
 # print getsource(Button)
+
+#CONSTS
+DIVIDE = u"\u00F7"
+MULTIPLY= u"\u00D7"
 
 class App():
 
     def __init__(self, master):
 
         self.master = master
-        self.master.geometry("400x515")
+        self.master.geometry("405x565")
         self.master.resizable(width=False, height=False)
 
         self.total = 0.0
@@ -42,19 +60,26 @@ class App():
         self.is_new_calculation = True  #Basically keeps track of whether equals has been pressed
 
         self.display_variable = StringVar()
-        self.total_display = Entry(master, textvariable=self.display_variable, width=19) #width is number of characters
+        self.calculation_variable = Calculation_variable()
+
+        display_frame = Frame(master)
+
+        self.total_display = Entry(display_frame, textvariable=self.display_variable, width=19) #width is number of characters
         self.total_display.config(font=('times', 29), justify=RIGHT, borderwidth=5, relief=FLAT)
-        self.total_display.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
-        self.total_display.grid_propagate(False)
+        self.total_display.pack()
         self.display_variable.set("0")
 
-        # self.calculation_variable = StringVar()
-        # self.total_calcuation_display = Entry(master, textvariable=self.calculation_variable, width=19) #width is number of characters
-        # self.total_calcuation_display.config(font=('times', 29), justify=RIGHT, borderwidth=5, relief=FLAT)
-        # self.total_calcuation_display.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
-        # self.total_calcuation_display.grid_propagate(False)
-        # self.display_variable.set("0")
+        self.total_calcuation_display = Entry(display_frame, textvariable=self.calculation_variable, width=24) #width is number of characters
+        self.total_calcuation_display.config(font=('times', 24), justify=RIGHT, borderwidth=5, relief=FLAT)
+        self.total_calcuation_display.pack()
+        self.calculation_variable.set("")
 
+        #Basically, whatever gets typed in goes into the cacluation display...
+        #This should only disappear if
+        # 1) equals button is pressed or
+        # 2) the clear button is pressed
+
+        display_frame.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
         #############
         #Key Bindings
@@ -70,13 +95,11 @@ class App():
             self.master.bind(i, make_lambda(i))
 
         #Keys +, -, *, /
-        for i in ("+-*/"):
-            #Function creates new scope, so values are passed to lambda
-            #   in key binding, rather than the variable itself.
-            def make_lambda(x):
-                return lambda val: self.set_command(x)
 
-            self.master.bind(i, make_lambda(i))
+        self.master.bind("-", lambda val: self.set_command('-'))
+        self.master.bind("+", lambda val: self.set_command('+'))
+        self.master.bind("*", lambda val: self.set_command(MULTIPLY))
+        self.master.bind("/", lambda val: self.set_command(DIVIDE))
 
         #keys = and <return>
         self.master.bind('=', lambda val: self.display_output())
@@ -103,13 +126,13 @@ class App():
         clear_button.grid(row=1, column=0, pady=2)
 
         #Divide Button
-        divide_button = Std_button(master, text="/")
-        divide_button.config(command=lambda:self.set_command("/"))
+        divide_button = Std_button(master, text=DIVIDE)
+        divide_button.config(command=lambda:self.set_command(DIVIDE))
         divide_button.grid(row=1, column=1, pady=2)
 
         #Multiple Button
-        multiply_button = Std_button(master, text="X")
-        multiply_button.config(command = lambda:self.set_command("*"))
+        multiply_button = Std_button(master, text=MULTIPLY)
+        multiply_button.config(command = lambda:self.set_command(MULTIPLY))
         multiply_button.grid(row=1, column=2, pady=2)
 
         #Delete Button
@@ -158,99 +181,113 @@ class App():
         button_0.grid(row=5, column=0, columnspan=2, pady=2)
 
         #decimal button
-        dot_button = Std_button(master, text=".", command = self.add_decimal)
+        dot_button = Std_button(master, text='.', command = self.add_decimal)
         dot_button.grid(row=5, column=2, pady=2)
 
         #Plus button
-        plus_button = Std_button(master, text="+", command = lambda: self.set_command('+'))
+        plus_button = Std_button(master, text='+', command = lambda: self.set_command('+'))
         plus_button.grid(row=2, column=3, pady=2)
 
         #Minus button
-        minus_button = Std_button(master, text="-", command = lambda:self.set_command('-'))
+        minus_button = Std_button(master, text='-', command = lambda:self.set_command('-'))
         minus_button.grid(row=3, column=3, pady=2)
 
         #Equals button
-        equals_button = Tall_button(master, text="=", command = self.display_output)
+        equals_button = Tall_button(master, text='=', command = self.display_output)
         equals_button.grid(row=4, column=3, rowspan=2, pady=2)
-
-
-    # #This can probably be removed
-    # def set_display_text(self, display_value):
-
-    #     display_width = 16
-    #     # white_space = display_width - len(display_value)
-    #     # return_value = '*' * white_space + display_value
-
-    #     self.display_variable.set(display_value)
 
 
     def clear_command(self):
 
-        self.set_null()
+        self.next_input = "0"
+        self.calculation_variable.clear()
         self.total = 0.0
         self.operator_value = None
         self.display_output()
 
     #Called when next_input needs to be set to zero
-    def set_null(self):
+    # def set_null(self):
 
-        self.next_input = "0"
-
+    #     self.next_input = "0"
 
     def delete_value(self):
 
         if len(self.next_input) > 1:
             self.next_input = self.next_input[:-1]
         else:
-            self.set_null()
+            self.next_input = "0"
 
+        self.calculation_variable.delete()
         self.display_variable.set(self.next_input)
+
+
+    def recalculate_total(self):
+
+        temp_value = self.calculation_variable.get()
+
+        i = 0
+        for i, char in enumerate(temp_value):
+            if char.isdigit() == False and char != '.':
+                break
+
+        temp_total = str(self.total)
+        if is_integer_value(temp_total):
+            temp_total = temp_total[:-2]
+
+        new_value = temp_total + temp_value[i:]
+        self.calculation_variable.set(new_value)
 
 
     def calculate_total(self):
 
-        input_float = float(self.next_input)
+        #Need an 'if new_calculation' here
+        if self.is_new_calculation:
+            self.recalculate_total()
 
-        if self.operator_value == None:
-            self.total = input_float
 
-        elif self.operator_value == '+':
-            self.total += input_float
+        self.total = float(self.calculation_variable.calculate_total())
+        # input_float = float(self.next_input)
 
-        elif self.operator_value == '-':
-            self.total -= input_float
+        # if self.operator_value == None:
+        #     self.total = input_float
 
-        elif self.operator_value == '*':
-            self.total *= input_float
+        # elif self.operator_value == '+':
+        #     self.total += input_float
 
-        elif self.operator_value == '/':
-            self.total /= input_float
+        # elif self.operator_value == '-':
+        #     self.total -= input_float
+
+        # elif self.operator_value == MULTIPLY:
+        #     self.total *= input_float
+
+        # elif self.operator_value == DIVIDE:
+        #     self.total /= input_float
 
 
     def set_command(self, command_value):
 
         if self.is_new_calculation == True:
             self.next_input = ""
+            temp_total = str(self.total)
+            if is_integer_value(temp_total):
+                temp_total = temp_total[:-2]
+
+            self.calculation_variable.set(temp_total)
             self.is_new_calculation = False
 
         else:
             self.calculate_total()
 
         self.operator_value = command_value
-        self.set_null()
-
-
-    def check_new_calculation(self):
-
-        if self.is_new_calculation == True:
-            self.clear_command()
-            self.is_new_calculation = False
-            self.operator_value = None
+        self.calculation_variable.add(command_value)
+        self.next_input = "0"
 
 
     def get_input(self, input_value):
 
-        self.check_new_calculation()
+        if self.is_new_calculation == True:
+            self.is_new_calculation = False
+            self.operator_value = None
 
         if self.next_input != "0":
             self.next_input += input_value
@@ -258,32 +295,42 @@ class App():
             self.next_input = input_value
 
         self.display_variable.set(self.next_input)
+        self.calculation_variable.add(input_value)
 
 
     def add_decimal(self):
 
-        self.check_new_calculation()
+        if self.is_new_calculation == True:
+            self.is_new_calculation = False
+            self.operator_value = None
 
         if '.' not in self.next_input:
             self.next_input += '.'
+            self.calculation_variable.add('.')
 
         self.display_variable.set(self.next_input)
 
 
+
     def display_output(self):
 
-        self.is_new_calculation = True
         try:
             self.calculate_total()
-            total_string = str(self.total)
+            """
+            In future, this should be done based on the self.calculation_varible value
+            """
+            temp_total = str(self.total)
 
-            if total_string.endswith(".0"):
-                total_string = total_string[:-2]
+            if is_integer_value(temp_total):
+                temp_total = temp_total[:-2]
 
-            self.display_variable.set(total_string)
+            self.display_variable.set(temp_total)
+
         except ZeroDivisionError:
             self.clear_command()
             self.display_variable.set("Zero division error")
+
+        self.is_new_calculation = True
 
 
 
