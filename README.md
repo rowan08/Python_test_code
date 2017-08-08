@@ -4,7 +4,7 @@ Sample mini-project to help me learn Tkinter
 
 ##Progress
 
-08-08-2017 - Issue: Show calulcations as they are typed
+**08-08-2017 - Issue: Show calulcations as they are typed** - 
 A separate display bar has been added to keep track of calculations as they are typed. The variable holding this information is also used to calculate the display output value. This ensures that whatever is typed should correctly correspond to the total shown.
 
 Calculator currently works fine for the most part. There are still some bugs associated with the old-vs-new way of displaying values. This will be fixed in successive issues as too many changes are being made within the current issue. I also need to decide exactly how these need to be handled (i.e. when the original total-display is updated, which display does the del-key affect, etc...)
